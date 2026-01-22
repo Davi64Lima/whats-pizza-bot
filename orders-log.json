@@ -1,0 +1,18 @@
+[
+  {
+    "phone": "557191837874",
+    "items": [
+      {
+        "sabor": "quatro queijos",
+        "tamanho": "pequena",
+        "quantidade": 1
+      }
+    ],
+    "address": "Rua das Groselias 156, Xique Xique, Bahia",
+    "payment": "pix",
+    "name": "Xispola",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T18:43:42.850Z"
+  }
+]

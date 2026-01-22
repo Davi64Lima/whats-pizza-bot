@@ -17,11 +17,6 @@ const client = new Client({
       "--disable-gpu",
     ],
   },
-  webVersionCache: {
-    type: "remote",
-    remotePath:
-      "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html",
-  },
 });
 
 client.on("qr", (qr) => {
@@ -31,45 +26,57 @@ client.on("qr", (qr) => {
 
 client.on("ready", () => {
   console.log("Bot do WhatsApp está pronto!");
+  console.log("Versão do client:", client.info);
 });
 
-client.on("message_create", async (message) => {
+client.on("message", async (message) => {
   try {
     // Ignora mensagens enviadas pelo próprio bot e grupos
-    if (message._data.id.fromMe || message.from.endsWith("@g.us")) {
+
+    if (message._data.id.fromMe || !message.from.endsWith("@c.us")) {
       return;
     }
-
-    console.log(message);
 
     const from = message.from;
     const phone = from.split("@")[0];
     const text = (message.body || "").trim();
+
+    if (from !== `557191837874@c.us`) {
+      console.log(`Ignorando mensagem de ${phone}`);
+      return;
+    }
 
     console.log(`Mensagem recebida de ${phone}: ${text}`);
 
     const reply = await handleIncomingMessage({ phone, text });
 
     if (reply) {
-      try {
-        // Usa o método direto do chat ao invés do client
-        const chat = await message.getChat();
-        await chat.sendMessage(reply);
-        console.log(`Mensagem enviada para ${phone}`);
-      } catch (sendError) {
-        console.error("Erro ao enviar mensagem:", sendError.message);
+      console.log(`Tentando enviar resposta: ${reply.substring(0, 50)}...`);
 
-        // Fallback: tenta enviar direto pelo client
-        try {
-          await client.sendMessage(from, reply);
-          console.log(`Mensagem enviada (fallback) para ${phone}`);
-        } catch (fallbackError) {
-          console.error("Falha no fallback:", fallbackError.message);
-        }
+      try {
+        // Envia mensagem sem marcar como lida
+        await client.pupPage.evaluate(
+          async ({ chatId, message }) => {
+            const chat = window.Store.Chat.get(chatId);
+            if (!chat) throw new Error("Chat não encontrado");
+
+            return await window.WWebJS.sendMessage(chat, message, {
+              linkPreview: false,
+            });
+          },
+          { chatId: from, message: reply },
+        );
+        console.log(`✓ Mensagem enviada para ${phone}`);
+      } catch (sendError) {
+        console.error("✗ Erro ao enviar mensagem:", sendError.message);
+        console.error("Stack trace:", sendError.stack);
       }
+    } else {
+      console.log("Nenhuma resposta gerada");
     }
   } catch (err) {
-    console.error("Erro ao processar mensagem:", err);
+    console.error("✗ Erro ao processar mensagem:", err.message);
+    console.error("Stack trace:", err.stack);
   }
 });
 
@@ -81,4 +88,5 @@ client.on("auth_failure", (msg) => {
   console.error("Falha na autenticação:", msg);
 });
 
+console.log("Inicializando cliente...");
 client.initialize();
