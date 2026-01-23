@@ -1,5 +1,5 @@
 import { getSession, resetSession } from "./sessionManager.js";
-import { enviarPedidoParaApi } from "./apiClient.js";
+import { enviarPedidoParaApi, getFlavors } from "./apiClient.js";
 
 export async function handleIncomingMessage({ phone, text }) {
   const session = getSession(phone);
@@ -29,7 +29,8 @@ export async function handleIncomingMessage({ phone, text }) {
       if (text === "1") {
         session.state = "AFTER_MENU";
         return (
-          getMenuText() + '\n\nSe quiser fazer um pedido, responda com "2".'
+          (await getMenuText()) +
+          '\n\nSe quiser fazer um pedido, responda com "2".'
         );
       }
       if (text === "2") {
@@ -55,8 +56,14 @@ export async function handleIncomingMessage({ phone, text }) {
       return (
         `Prazer, ${order.name}! Vamos ao seu pedido.\n\n` +
         "Envie cada item no formato:\n" +
-        "`sabor, tamanho, quantidade`\n" +
-        "Exemplo: `calabresa, grande, 1`\n\n" +
+        "`sabor(es), tamanho, quantidade`\n\n" +
+        "*Tamanhos:* pequena, média, grande\n" +
+        "*Sabores:* Pequena/Média até 2 sabores | Grande até 3 sabores\n" +
+        "Separe sabores com `/`\n\n" +
+        "Exemplos:\n" +
+        "`calabresa, média, 1`\n" +
+        "`calabresa/frango, grande, 2`\n" +
+        "`mussarela/portuguesa/bacon, grande, 1`\n\n" +
         "Quando terminar, digite: finalizar"
       );
 
@@ -73,15 +80,22 @@ export async function handleIncomingMessage({ phone, text }) {
       if (!item) {
         return (
           "Não entendi este item. Use o formato:\n" +
-          "`sabor, tamanho, quantidade`\n" +
-          "Exemplo: `calabresa, grande, 1`\n\n" +
+          "`sabor(es), tamanho, quantidade`\n\n" +
+          "Exemplos:\n" +
+          "`calabresa, média, 1`\n" +
+          "`calabresa/frango, grande, 2`\n\n" +
           'Ou digite "finalizar" para encerrar a seleção.'
         );
       }
 
+      if (item.error) {
+        return item.error;
+      }
+
       order.items.push(item);
+      const saboresTexto = item.sabores.map((s) => capitalize(s)).join("/");
       return (
-        `Adicionei: ${item.quantidade}x ${capitalize(item.sabor)} (${item.tamanho.toUpperCase()}).\n` +
+        `Adicionei: ${item.quantidade}x ${saboresTexto} (${item.tamanho.toUpperCase()}).\n` +
         'Envie outro item ou digite "finalizar".'
       );
 
@@ -137,31 +151,71 @@ export async function handleIncomingMessage({ phone, text }) {
   }
 }
 
-function getMenuText() {
-  // Você pode puxar isso da sua API no futuro
-  return (
-    "🍕 *Cardápio Pizzaria X* 🍕\n\n" +
-    "*Tradicionais* (P/M/G):\n" +
-    "- Calabresa\n" +
-    "- Mussarela\n" +
-    "- Frango com Catupiry\n\n" +
-    "*Especiais* (P/M/G):\n" +
-    "- Quatro Queijos\n" +
-    "- Portuguesa\n\n" +
-    "Bebidas:\n" +
-    "- Refrigerante lata\n" +
-    "- Refrigerante 2L\n"
-  );
+async function getMenuText() {
+  const flavors = await getFlavors();
+
+  // Filtrar apenas sabores ativos
+  const activeFlavors = flavors.filter((f) => f.isActive);
+
+  // Agrupar por tipo
+  const tradicionais = activeFlavors.filter((f) => f.type === "TRADICIONAL");
+  const especiais = activeFlavors.filter((f) => f.type === "SPECIAL");
+  const doces = activeFlavors.filter((f) => f.type === "DOCE");
+
+  // Função auxiliar para formatar preços
+  const formatPrice = (priceInCents) => {
+    return `R$ ${(priceInCents / 100).toFixed(2).replace(".", ",")}`;
+  };
+
+  let menuText = "🍕 *Cardápio Pizzaria X* 🍕\n\n";
+
+  // Tradicionais
+  if (tradicionais.length > 0) {
+    menuText += "*Pizzas Tradicionais*\n";
+    tradicionais.forEach((flavor) => {
+      menuText += `\n*${flavor.name}*\n`;
+      menuText += `${flavor.description}\n`;
+      menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
+      menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+    });
+    menuText += "\n";
+  }
+
+  // Especiais
+  if (especiais.length > 0) {
+    menuText += "*Pizzas Especiais*\n";
+    especiais.forEach((flavor) => {
+      menuText += `\n*${flavor.name}*\n`;
+      menuText += `${flavor.description}\n`;
+      menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
+      menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+    });
+    menuText += "\n";
+  }
+
+  // Doces
+  if (doces.length > 0) {
+    menuText += "*Pizzas Doces* 🍫\n";
+    doces.forEach((flavor) => {
+      menuText += `\n*${flavor.name}*\n`;
+      menuText += `${flavor.description}\n`;
+      menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
+      menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+    });
+  }
+
+  return menuText;
 }
 
 function parseItem(text) {
   const parts = text.split(",").map((p) => p.trim());
   if (parts.length < 3) return null;
 
-  const [sabor, tamanho, qtdStr] = parts;
+  const [saboresStr, tamanho, qtdStr] = parts;
   const quantidade = Number(qtdStr);
+
   if (
-    !sabor ||
+    !saboresStr ||
     !tamanho ||
     !quantidade ||
     isNaN(quantidade) ||
@@ -170,9 +224,44 @@ function parseItem(text) {
     return null;
   }
 
+  // Separar múltiplos sabores
+  const sabores = saboresStr
+    .split("/")
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0);
+
+  if (sabores.length === 0) {
+    return null;
+  }
+
+  const tamanhoNormalizado = tamanho.toLowerCase();
+
+  // Validar quantidade de sabores baseado no tamanho
+  const tamanhosPequenos = ["pequena", "p", "media", "média", "m", "middle"];
+  const tamanhosGrandes = ["grande", "g", "large"];
+
+  if (tamanhosPequenos.includes(tamanhoNormalizado)) {
+    if (sabores.length > 2) {
+      return {
+        error: `Pizzas pequenas e médias podem ter no máximo 2 sabores. Você tentou adicionar ${sabores.length} sabores.`,
+      };
+    }
+  } else if (tamanhosGrandes.includes(tamanhoNormalizado)) {
+    if (sabores.length > 3) {
+      return {
+        error: `Pizzas grandes  podem ter no máximo 3 sabores. Você tentou adicionar ${sabores.length} sabores.`,
+      };
+    }
+  } else {
+    return {
+      error: `Tamanho inválido: "${tamanho}". Use: pequena, média, grande ou família.`,
+    };
+  }
+
   return {
-    sabor: sabor.toLowerCase(),
-    tamanho: tamanho.toLowerCase(),
+    sabores: sabores,
+    sabor: sabores.join("/"), // mantém compatibilidade
+    tamanho: tamanhoNormalizado,
     quantidade: quantidade,
   };
 }
@@ -190,10 +279,12 @@ function normalizePayment(p) {
 
 function buildConfirmationMessage(order) {
   const itensTexto = order.items
-    .map(
-      (i, idx) =>
-        `${idx + 1}) ${i.quantidade}x ${capitalize(i.sabor)} (${i.tamanho.toUpperCase()})`,
-    )
+    .map((i, idx) => {
+      const sabores = i.sabores
+        ? i.sabores.map((s) => capitalize(s)).join("/")
+        : capitalize(i.sabor);
+      return `${idx + 1}) ${i.quantidade}x ${sabores} (${i.tamanho.toUpperCase()})`;
+    })
     .join("\n");
 
   return (

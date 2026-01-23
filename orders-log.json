@@ -14,5 +14,262 @@
     "notes": "",
     "failedToSend": true,
     "createdAt": "2026-01-22T18:43:42.850Z"
+  },
+  {
+    "phone": "557185350004",
+    "items": [
+      {
+        "sabor": "calabresa",
+        "tamanho": "g",
+        "quantidade": 1
+      }
+    ],
+    "address": "rua carlos marighella, 28, sao marcos e associação",
+    "payment": "pix",
+    "name": "Davi",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T23:08:38.373Z"
+  },
+  {
+    "phone": "557185350004",
+    "items": [
+      {
+        "sabor": "calabresa",
+        "tamanho": "grande",
+        "quantidade": 1
+      }
+    ],
+    "address": "rua carlos marighella, 28, sao marcos e associação",
+    "payment": "pix",
+    "name": "Davi",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T23:18:29.644Z"
+  },
+  {
+    "phone": "557185350004",
+    "items": [
+      {
+        "sabor": "calabresa",
+        "tamanho": "grande",
+        "quantidade": 1
+      }
+    ],
+    "address": "rua carlos marighella, 28, sao marcos e associação",
+    "payment": "pix",
+    "name": "Davi",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T23:22:17.778Z"
+  },
+  {
+    "products": {
+      "pizza_calabresa_media": {
+        "name": "Pizza de Calabresa",
+        "size": "Média",
+        "flavors": [
+          "Calabresa",
+          "Mussarela"
+        ],
+        "quantity": 2,
+        "uuid": "prod-1234"
+      },
+      "refrigerante_coca_lata": {
+        "name": "Refrigerante Coca-Cola",
+        "size": "Lata 350ml",
+        "quantity": 3,
+        "uuid": "prod-5678"
+      }
+    },
+    "customer": {
+      "uuid": "cust-9999",
+      "name": "João Silva",
+      "phone": "11988887777"
+    },
+    "address": {
+      "cep": "01234-567",
+      "logradouro": "Rua das Flores",
+      "number": "123",
+      "complement": "Apto 45",
+      "bairro": "Centro"
+    },
+    "payment": {
+      "method": "credit_card",
+      "installments": 2,
+      "card_last4": "1234",
+      "transaction_id": "trans-abc-123"
+    },
+    "hash": "b1f79e21d1e44f9ab7e1a9c7e4ac1234",
+    "observation": "Retirar a cebola da pizza.",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T23:45:19.865Z"
+  },
+  {
+    "products": {
+      "pizza_calabresa_media": {
+        "name": "Pizza de Calabresa",
+        "size": "Média",
+        "flavors": [
+          "Calabresa",
+          "Mussarela"
+        ],
+        "quantity": 2
+      },
+      "refrigerante_coca_lata": {
+        "name": "Refrigerante Coca-Cola",
+        "size": "Lata 350ml",
+        "quantity": 3,
+        "uuid": "10f54e2b-5c08-4d47-8db8-a566be1e1052"
+      }
+    },
+    "customer": {
+      "uuid": "cust-9999",
+      "name": "João Silva",
+      "phone": "11988887777"
+    },
+    "address": {
+      "cep": "01234-567",
+      "logradouro": "Rua das Flores",
+      "number": "123",
+      "complement": "Apto 45",
+      "bairro": "Centro"
+    },
+    "payment": {
+      "method": "credit_card",
+      "installments": 2,
+      "card_last4": "1234",
+      "transaction_id": "trans-abc-123"
+    },
+    "hash": "b1f79e21d1e44f9ab7e1a9c7e4ac1234",
+    "observation": "Retirar a cebola da pizza.",
+    "failedToSend": true,
+    "createdAt": "2026-01-22T23:52:02.523Z"
+  },
+  {
+    "products": {
+      "pizza_calabresa_media": {
+        "name": "Pizza de Calabresa",
+        "size": "Média",
+        "flavors": [
+          "Calabresa",
+          "Mussarela"
+        ],
+        "quantity": 2
+      },
+      "refrigerante_coca_lata": {
+        "name": "Refrigerante Coca-Cola",
+        "size": "Lata 350ml",
+        "quantity": 3,
+        "uuid": "10f54e2b-5c08-4d47-8db8-a566be1e1052"
+      }
+    },
+    "customer": {
+      "uuid": "cust-9999",
+      "name": "João Silva",
+      "phone": "11988887777"
+    },
+    "address": {
+      "cep": "01234-567",
+      "logradouro": "Rua das Flores",
+      "number": "123",
+      "complement": "Apto 45",
+      "bairro": "Centro"
+    },
+    "payment": {
+      "method": "credit_card",
+      "installments": 2,
+      "card_last4": "1234",
+      "transaction_id": "trans-abc-123"
+    },
+    "code": "AUHD4",
+    "hash": "01995002-333b-70c8-83f9-eacc3eae6508",
+    "observation": "Retirar a cebola da pizza.",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T00:11:31.726Z"
+  },
+  {
+    "products": {
+      "pizza_calabresa_media": {
+        "name": "Pizza de Calabresa",
+        "size": "Média",
+        "flavors": [
+          "Calabresa",
+          "Mussarela"
+        ],
+        "quantity": 2
+      },
+      "refrigerante_coca_lata": {
+        "name": "Refrigerante Coca-Cola",
+        "size": "Lata 350ml",
+        "quantity": 3,
+        "uuid": "10f54e2b-5c08-4d47-8db8-a566be1e1052"
+      }
+    },
+    "customer": {
+      "uuid": "d0eeff91-17a7-4a5f-8fe2-d976719db591",
+      "name": "João Silva",
+      "phone": "11988887777"
+    },
+    "address": {
+      "cep": "01234-567",
+      "logradouro": "Rua das Flores",
+      "number": "123",
+      "complement": "Apto 45",
+      "bairro": "Centro"
+    },
+    "payment": {
+      "method": "credit_card",
+      "installments": 2,
+      "card_last4": "1234",
+      "transaction_id": "trans-abc-123"
+    },
+    "code": "AUHD4",
+    "hash": "01995002-333b-70c8-83f9-eacc3eae6508",
+    "observation": "Retirar a cebola da pizza.",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T00:13:52.543Z"
+  },
+  {
+    "products": {
+      "pizza_calabresa_media": {
+        "name": "Pizza de Calabresa",
+        "size": "Média",
+        "flavors": [
+          "Calabresa",
+          "Mussarela"
+        ],
+        "quantity": 2
+      },
+      "refrigerante_coca_lata": {
+        "name": "Refrigerante Coca-Cola",
+        "size": "Lata 350ml",
+        "quantity": 3,
+        "uuid": "10f54e2b-5c08-4d47-8db8-a566be1e1052"
+      }
+    },
+    "customer": {
+      "uuid": "d0eeff91-17a7-4a5f-8fe2-d976719db591",
+      "name": "João Silva",
+      "phone": "11988887777"
+    },
+    "address": {
+      "cep": "01234-567",
+      "logradouro": "Rua das Flores",
+      "number": "123",
+      "complement": "Apto 45",
+      "bairro": "Centro"
+    },
+    "payment": {
+      "method": "credit_card",
+      "installments": 2,
+      "card_last4": "1234",
+      "transaction_id": "trans-abc-123"
+    },
+    "code": "AUHD4",
+    "hash": "01995002-333b-70c8-83f9-eacc3eae6508",
+    "observation": "Retirar a cebola da pizza.",
+    "failedToSend": false,
+    "createdAt": "2026-01-23T00:18:46.100Z"
   }
 ]

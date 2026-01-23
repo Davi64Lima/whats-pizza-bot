@@ -1,17 +1,34 @@
 import axios from "axios";
 import fs from "fs";
 
-const API_BASE_URL = process.env.PIZZA_API_URL || "https://seu-sistema.com/api";
+const API_BASE_URL = process.env.PIZZA_API_URL || "http://localhost:3001";
 
 export async function enviarPedidoParaApi(order) {
   try {
-    const url = `${API_BASE_URL}/pedidos`;
+    const url = `${API_BASE_URL}/orders`;
+
+    console.log(order);
 
     const response = await axios.post(url, order);
     console.log("Pedido enviado para API com sucesso:", response.data);
 
     // MVP: também logar em arquivo
     logOrderToFile(order);
+
+    return response.data;
+  } catch (err) {
+    console.error("Erro ao enviar pedido para API:", err.message);
+    // Mesmo em erro, log a pedido localmente
+    logOrderToFile(order, true);
+    throw err;
+  }
+}
+
+export async function getFlavors() {
+  try {
+    const url = `${API_BASE_URL}/flavors`;
+
+    const response = await axios.get(url);
 
     return response.data;
   } catch (err) {

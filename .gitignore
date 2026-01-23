@@ -19,3 +19,5 @@ node_modules
 .wwebjs*
 
 orders-log.json
+
+.env
