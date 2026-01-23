@@ -11,4 +11,9 @@ export const config = {
 
   // File Storage Configuration
   ordersLogFile: process.env.ORDERS_LOG_FILE || "orders-log.json",
+
+  api: {
+    port: process.env.API_PORT || 3003,
+    host: process.env.API_HOST || "localhost",
+  },
 };
