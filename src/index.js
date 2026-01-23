@@ -46,7 +46,7 @@ client.on("message", async (message) => {
     const phone = from.split("@")[0];
     const text = (message.body || "").trim();
 
-    if (from !== `557185350004@c.us` && from !== `557196628062@c.us`) {
+    if (from !== `557185350004@c.us`) {
       return;
     }
 

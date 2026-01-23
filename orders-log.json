@@ -455,5 +455,33 @@
     "observation": "",
     "failedToSend": false,
     "createdAt": "2026-01-23T03:10:35.178Z"
+  },
+  {
+    "code": "9WRBD",
+    "products": [
+      {
+        "flavors": [
+          "b155da4d-2f35-4e67-a881-4e75042c6fdf"
+        ],
+        "name": "Média + Mussarela",
+        "size": "middle",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Davi Lima",
+      "phone": "557185350004"
+    },
+    "address": {
+      "street": "rua davi lima",
+      "number": "2344",
+      "neighborhood": "brotas",
+      "complement": ""
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": false,
+    "createdAt": "2026-01-23T03:28:12.738Z"
   }
 ]
