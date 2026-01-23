@@ -100,6 +100,10 @@ export async function handleIncomingMessage({ phone, text }) {
       );
 
     case "ASK_ADDRESS":
+      const addressValidation = validateAddress(text);
+      if (!addressValidation.valid) {
+        return addressValidation.message;
+      }
       order.address = text;
       session.state = "ASK_PAYMENT";
       return "Qual a forma de pagamento? (pix, cartão, dinheiro)";
@@ -313,4 +317,54 @@ function buildConfirmationMessage(order) {
     `Pagamento: ${order.payment}\n\n` +
     "Responda *sim* para confirmar ou *nao* para recomeçar."
   );
+}
+
+function validateAddress(address) {
+  if (!address || address.trim().length < 10) {
+    return {
+      valid: false,
+      message:
+        "Endereço muito curto. Por favor, envie o endereço completo com rua, número e bairro.",
+    };
+  }
+
+  const addressLower = address.toLowerCase();
+
+  // Verifica se tem número (pelo menos um dígito)
+  const hasNumber = /\d+/.test(address);
+
+  // Verifica se tem indicadores de rua/avenida
+  const hasStreet =
+    /\b(rua|avenida|av|alameda|travessa|rodovia|estrada|praça)\b/i.test(
+      addressLower,
+    );
+
+  // Verifica se tem pelo menos 3 palavras (indicando detalhamento mínimo)
+  const wordCount = address.trim().split(/\s+/).length;
+
+  if (!hasNumber) {
+    return {
+      valid: false,
+      message:
+        "Por favor, inclua o número no endereço.\n\nExemplo: Rua Carlos Marighella, 102, Bairro Novo",
+    };
+  }
+
+  if (!hasStreet && wordCount < 4) {
+    return {
+      valid: false,
+      message:
+        "Por favor, envie um endereço mais completo.\n\nExemplo: Rua Carlos Marighella, 102, Bairro Novo, próximo ao mercado",
+    };
+  }
+
+  if (wordCount < 3) {
+    return {
+      valid: false,
+      message:
+        "Endereço incompleto. Por favor, envie rua, número e bairro.\n\nExemplo: Rua Carlos Marighella, 102, Bairro Novo",
+    };
+  }
+
+  return { valid: true };
 }

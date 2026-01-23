@@ -292,5 +292,24 @@
     "notes": "",
     "failedToSend": true,
     "createdAt": "2026-01-23T01:33:11.266Z"
+  },
+  {
+    "phone": "557185350004",
+    "items": [
+      {
+        "sabores": [
+          "calabresa"
+        ],
+        "sabor": "calabresa",
+        "tamanho": "média",
+        "quantidade": 1
+      }
+    ],
+    "address": "Rua São Luís,96 E",
+    "payment": "pix",
+    "name": "Davi",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T01:41:30.672Z"
   }
 ]
