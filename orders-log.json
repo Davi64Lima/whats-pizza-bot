@@ -271,5 +271,26 @@
     "observation": "Retirar a cebola da pizza.",
     "failedToSend": false,
     "createdAt": "2026-01-23T00:18:46.100Z"
+  },
+  {
+    "phone": "557185350004",
+    "items": [
+      {
+        "sabores": [
+          "mussarela",
+          "portuguesa",
+          "bacon"
+        ],
+        "sabor": "mussarela/portuguesa/bacon",
+        "tamanho": "grande",
+        "quantidade": 1
+      }
+    ],
+    "address": "Rua Carlos Marighella, 102, Salvador, 41250-570, BA, BR",
+    "payment": "pix",
+    "name": "Davi",
+    "notes": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T01:33:11.266Z"
   }
 ]

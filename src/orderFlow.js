@@ -76,7 +76,7 @@ export async function handleIncomingMessage({ phone, text }) {
         return "Certo! Agora me envie o endereço completo (rua, número, bairro e ponto de referência, se tiver).";
       }
 
-      const item = parseItem(text);
+      const item = await parseItem(text);
       if (!item) {
         return (
           "Não entendi este item. Use o formato:\n" +
@@ -207,7 +207,7 @@ async function getMenuText() {
   return menuText;
 }
 
-function parseItem(text) {
+async function parseItem(text) {
   const parts = text.split(",").map((p) => p.trim());
   if (parts.length < 3) return null;
 
@@ -232,6 +232,23 @@ function parseItem(text) {
 
   if (sabores.length === 0) {
     return null;
+  }
+
+  // Buscar sabores disponíveis no cardápio
+  const flavors = await getFlavors();
+  const activeFlavors = flavors.filter((f) => f.isActive);
+  const availableFlavorNames = activeFlavors.map((f) => f.name.toLowerCase());
+
+  // Validar se todos os sabores existem
+  const invalidFlavors = sabores.filter(
+    (sabor) => !availableFlavorNames.includes(sabor),
+  );
+
+  if (invalidFlavors.length > 0) {
+    const invalidList = invalidFlavors.map((s) => capitalize(s)).join(", ");
+    return {
+      error: `Sabor(es) não encontrado(s): ${invalidList}\n\nDigite "menu" ou "cardápio" para ver os sabores disponíveis.`,
+    };
   }
 
   const tamanhoNormalizado = tamanho.toLowerCase();

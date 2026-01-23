@@ -32,9 +32,17 @@ client.on("ready", () => {
 client.on("message", async (message) => {
   try {
     // Ignora mensagens enviadas pelo próprio bot e grupos
-
     if (message._data.id.fromMe || !message.from.endsWith("@c.us")) {
       return;
+    }
+
+    if (message.type === "location") {
+      // Remove a primeira linha duplicada do endereço
+      const fullDescription = message.location.description || "";
+      const lines = fullDescription.split("\n");
+      message.body =
+        lines.length > 1 ? lines.slice(1).join("\n") : fullDescription;
+      console.log("Endereço processado:", message.body);
     }
 
     const from = message.from;
