@@ -57,13 +57,13 @@ export async function handleIncomingMessage({ phone, text }) {
         `Prazer, ${order.customer.name}! Vamos ao seu pedido.\n\n` +
         "Envie cada item no formato:\n" +
         "`sabor(es), tamanho, quantidade`\n\n" +
-        "*Tamanhos:* pequena, média, grande\n" +
-        "*Sabores:* Pequena/Média até 2 sabores | Grande até 3 sabores\n" +
+        "*Tamanhos:* média, grande, família\n" +
+        "*Sabores:* Média/Grande até 2 sabores | Família até 3 sabores\n" +
         "Separe sabores com `/`\n\n" +
         "Exemplos:\n" +
         "`calabresa, média, 1`\n" +
         "`calabresa/frango, grande, 2`\n" +
-        "`mussarela/portuguesa/bacon, grande, 1`\n\n" +
+        "`mussarela/portuguesa/bacon, família, 1`\n\n" +
         "Quando terminar, digite: finalizar"
       );
 
@@ -94,7 +94,7 @@ export async function handleIncomingMessage({ phone, text }) {
 
       order.products.push(item);
       return (
-        `Adicionei: ${item.quantity}x ${item.flavors.map((s) => capitalize(s)).join("/")} (${item.size.toUpperCase()}).\n` +
+        `Adicionei: ${item.quantity}x ${item.name}.\n` +
         'Envie outro item ou digite "finalizar".'
       );
 
@@ -194,6 +194,7 @@ async function getMenuText() {
       menuText += `${flavor.description}\n`;
       menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
       menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+      menuText += `F: ${formatPrice(flavor.prices.family)}`;
     });
     menuText += "\n";
   }
@@ -206,6 +207,7 @@ async function getMenuText() {
       menuText += `${flavor.description}\n`;
       menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
       menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+      menuText += `F: ${formatPrice(flavor.prices.family)}`;
     });
     menuText += "\n";
   }
@@ -218,6 +220,7 @@ async function getMenuText() {
       menuText += `${flavor.description}\n`;
       menuText += `M: ${formatPrice(flavor.prices.middle)} | `;
       menuText += `G: ${formatPrice(flavor.prices.large)} | `;
+      menuText += `F: ${formatPrice(flavor.prices.family)}`;
     });
   }
 
@@ -254,12 +257,27 @@ async function parseItem(text) {
   // Buscar sabores disponíveis no cardápio
   const flavors = await getFlavors();
   const activeFlavors = flavors.filter((f) => f.isActive);
-  const availableFlavorNames = activeFlavors.map((f) => f.name.toLowerCase());
 
-  // Validar se todos os sabores existem
-  const invalidFlavors = sabores.filter(
-    (sabor) => !availableFlavorNames.includes(sabor),
-  );
+  // Criar mapa de nome -> flavor completo (com UUID)
+  const flavorMap = {};
+  activeFlavors.forEach((f) => {
+    flavorMap[f.name.toLowerCase()] = f;
+  });
+
+  // Validar se todos os sabores existem e coletar os UUIDs
+  const flavorUuids = [];
+  const flavorNames = [];
+  const invalidFlavors = [];
+
+  for (const sabor of sabores) {
+    const flavor = flavorMap[sabor];
+    if (!flavor) {
+      invalidFlavors.push(sabor);
+    } else {
+      flavorUuids.push(flavor.uuid);
+      flavorNames.push(capitalize(flavor.name));
+    }
+  }
 
   if (invalidFlavors.length > 0) {
     const invalidList = invalidFlavors.map((s) => capitalize(s)).join(", ");
@@ -271,30 +289,50 @@ async function parseItem(text) {
   const tamanhoNormalizado = tamanho.toLowerCase();
 
   // Validar quantidade de sabores baseado no tamanho
-  const tamanhosPequenos = ["pequena", "p", "media", "média", "m", "middle"];
-  const tamanhosGrandes = ["grande", "g", "large"];
+  const tamanhosMediosGrandes = [
+    "media",
+    "média",
+    "m",
+    "middle",
+    "grande",
+    "g",
+    "large",
+  ];
+  const tamanhosFamilia = ["familia", "família", "f", "family"];
 
-  if (tamanhosPequenos.includes(tamanhoNormalizado)) {
+  if (tamanhosMediosGrandes.includes(tamanhoNormalizado)) {
     if (sabores.length > 2) {
       return {
-        error: `Pizzas pequenas e médias podem ter no máximo 2 sabores. Você tentou adicionar ${sabores.length} sabores.`,
+        error: `Pizzas médias e grandes podem ter no máximo 2 sabores. Você tentou adicionar ${sabores.length} sabores.`,
       };
     }
-  } else if (tamanhosGrandes.includes(tamanhoNormalizado)) {
+  } else if (tamanhosFamilia.includes(tamanhoNormalizado)) {
     if (sabores.length > 3) {
       return {
-        error: `Pizzas grandes  podem ter no máximo 3 sabores. Você tentou adicionar ${sabores.length} sabores.`,
+        error: `Pizzas família podem ter no máximo 3 sabores. Você tentou adicionar ${sabores.length} sabores.`,
       };
     }
   } else {
     return {
-      error: `Tamanho inválido: "${tamanho}". Use: pequena, média, grande ou família.`,
+      error: `Tamanho inválido: "${tamanho}". Use: média, grande ou família.`,
     };
   }
 
+  // Construir o nome no formato: "Tamanho + Sabor1 + Sabor2 + ..."
+  const tamanhoFormatado = capitalize(
+    tamanhosFamilia.includes(tamanhoNormalizado)
+      ? "Família"
+      : tamanhosMediosGrandes.includes(tamanhoNormalizado) &&
+          ["media", "média", "m", "middle"].includes(tamanhoNormalizado)
+        ? "Média"
+        : "Grande",
+  );
+
+  const pizzaName = [tamanhoFormatado, ...flavorNames].join(" + ");
+
   return {
-    flavors: sabores,
-    name: sabores.map((s) => capitalize(s)).join("/"),
+    flavors: flavorUuids,
+    name: pizzaName,
     size: tamanhoNormalizado,
     quantity: quantidade,
   };
@@ -314,10 +352,7 @@ function normalizePayment(p) {
 function buildConfirmationMessage(order) {
   const itensTexto = order.products
     .map((i, idx) => {
-      const flavors = i.flavors
-        ? i.flavors.map((s) => capitalize(s)).join("/")
-        : capitalize(i.flavor);
-      return `${idx + 1}) ${i.quantity}x ${flavors} (${i.size.toUpperCase()})`;
+      return `${idx + 1}) ${i.quantity}x ${i.name}`;
     })
     .join("\n");
 

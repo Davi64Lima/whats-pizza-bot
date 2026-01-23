@@ -397,5 +397,63 @@
     "observation": "",
     "failedToSend": false,
     "createdAt": "2026-01-23T02:43:27.345Z"
+  },
+  {
+    "code": "AVUA7",
+    "products": [
+      {
+        "flavors": [
+          9,
+          10,
+          14
+        ],
+        "name": "Família + Mussarela + Portuguesa + Bacon",
+        "size": "família",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Davi Lima",
+      "phone": "557185350004"
+    },
+    "address": {
+      "street": "Rua Carlos Marighella",
+      "number": "102",
+      "neighborhood": "Salvador",
+      "complement": "41250-570, BA, BR"
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T02:56:02.772Z"
+  },
+  {
+    "code": "BFPHF",
+    "products": [
+      {
+        "flavors": [
+          "8a478a00-4af3-426c-b1db-a445e67f3de5"
+        ],
+        "name": "Média + Calabresa",
+        "size": "média",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Mariana",
+      "phone": "557196628062"
+    },
+    "address": {
+      "street": "R. Euvaldo Luz",
+      "number": "Taperoá",
+      "neighborhood": "45430-000",
+      "complement": "BA, BR"
+    },
+    "payment": "cartao",
+    "hash": "",
+    "observation": "",
+    "failedToSend": false,
+    "createdAt": "2026-01-23T03:10:35.178Z"
   }
 ]
