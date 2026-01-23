@@ -288,6 +288,16 @@ async function parseItem(text) {
 
   const tamanhoNormalizado = tamanho.toLowerCase();
 
+  // Normalizar tamanho para o padrão da API
+  let sizeForApi;
+  if (["media", "média", "m"].includes(tamanhoNormalizado)) {
+    sizeForApi = "middle";
+  } else if (["grande", "g"].includes(tamanhoNormalizado)) {
+    sizeForApi = "large";
+  } else if (["familia", "família", "f"].includes(tamanhoNormalizado)) {
+    sizeForApi = "family";
+  }
+
   // Validar quantidade de sabores baseado no tamanho
   const tamanhosMediosGrandes = [
     "media",
@@ -333,7 +343,7 @@ async function parseItem(text) {
   return {
     flavors: flavorUuids,
     name: pizzaName,
-    size: tamanhoNormalizado,
+    size: sizeForApi,
     quantity: quantidade,
   };
 }
