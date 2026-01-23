@@ -483,5 +483,35 @@
     "observation": "",
     "failedToSend": false,
     "createdAt": "2026-01-23T03:28:12.738Z"
+  },
+  {
+    "code": "HX2LA",
+    "products": [
+      {
+        "flavors": [
+          9,
+          10,
+          14
+        ],
+        "name": "Família + Mussarela + Portuguesa + Bacon",
+        "size": "família",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Beatriz Brito",
+      "phone": "557185350004"
+    },
+    "address": {
+      "street": "Rua Carlos Marighella",
+      "number": "102",
+      "neighborhood": "Salvador",
+      "complement": "41250-570, BA, BR"
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T04:18:11.531Z"
   }
 ]

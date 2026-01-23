@@ -1,90 +1,63 @@
-import pkg from "whatsapp-web.js";
-const { Client, LocalAuth } = pkg;
-import qrcode from "qrcode-terminal";
-import { handleIncomingMessage } from "./orderFlow.js";
+/**
+ * Ponto de entrada da aplicação
+ * Responsável por inicializar e conectar todos os componentes
+ */
 
-const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: {
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--no-first-run",
-      "--no-zygote",
-      "--disable-gpu",
-    ],
-  },
-});
+// Repositories
+import { PizzaApiRepository } from "./repositories/pizzaApiRepository.js";
+import { FileStorageRepository } from "./repositories/fileStorageRepository.js";
 
-client.on("qr", (qr) => {
-  console.log("QR RECEIVED, escaneie com o WhatsApp:");
-  qrcode.generate(qr, { small: true });
-});
+// Services
+import { SessionService } from "./services/sessionService.js";
+import { MenuService } from "./services/menuService.js";
+import { OrderService } from "./services/orderService.js";
 
-client.on("ready", () => {
-  console.log("Bot do WhatsApp está pronto!");
-  console.log("Versão do client:", client.info);
-});
+// Utils
+import { OrderParser } from "./utils/orderParser.js";
 
-client.on("message", async (message) => {
-  try {
-    if (message._data.id.fromMe || !message.from.endsWith("@c.us")) {
-      return;
-    }
+// Handlers
+import { OrderFlowHandler } from "./handlers/orderFlowHandler.js";
+import { WhatsAppHandler } from "./handlers/whatsAppHandler.js";
 
-    if (message.type === "location") {
-      const fullDescription = message.location.description || "";
-      const lines = fullDescription.split("\n");
-      message.body =
-        lines.length > 1 ? lines.slice(1).join("\n") : fullDescription;
-    }
+/**
+ * Função principal que inicializa a aplicação
+ * Implementa Dependency Injection para facilitar testes e manutenção
+ */
+function bootstrap() {
+  // 1. Inicializa os Repositories (camada de acesso a dados)
+  const pizzaApiRepository = new PizzaApiRepository();
+  const fileStorageRepository = new FileStorageRepository();
 
-    const from = message.from;
-    const phone = from.split("@")[0];
-    const text = (message.body || "").trim();
+  // 2. Inicializa os Services (camada de lógica de negócio)
+  const sessionService = new SessionService();
+  const menuService = new MenuService(pizzaApiRepository);
+  const orderService = new OrderService(
+    pizzaApiRepository,
+    fileStorageRepository
+  );
 
-    if (from !== `557185350004@c.us`) {
-      return;
-    }
+  // 3. Inicializa os Utils
+  const orderParser = new OrderParser(menuService);
 
-    const reply = await handleIncomingMessage({ phone, text });
+  // 4. Inicializa os Handlers
+  const orderFlowHandler = new OrderFlowHandler(
+    sessionService,
+    menuService,
+    orderService,
+    orderParser
+  );
 
-    if (reply) {
-      try {
-        await client.pupPage.evaluate(
-          async ({ chatId, message }) => {
-            const chat = window.Store.Chat.get(chatId);
-            if (!chat) throw new Error("Chat não encontrado");
+  const whatsAppHandler = new WhatsAppHandler(orderFlowHandler);
 
-            return await window.WWebJS.sendMessage(chat, message, {
-              linkPreview: false,
-            });
-          },
-          { chatId: from, message: reply },
-        );
-      } catch (sendError) {
-        console.error("✗ Erro ao enviar mensagem:", sendError.message);
-        console.error("Stack trace:", sendError.stack);
-      }
-    } else {
-      console.log("Nenhuma resposta gerada");
-    }
-  } catch (err) {
-    console.error("✗ Erro ao processar mensagem:", err.message);
-    console.error("Stack trace:", err.stack);
-  }
-});
+  // 5. Inicia a aplicação
+  whatsAppHandler.initialize();
 
-client.on("disconnected", (reason) => {
-  console.log("Cliente desconectado:", reason);
-});
+  console.log("✓ Aplicação inicializada com sucesso!");
+  console.log("✓ Arquitetura em camadas configurada:");
+  console.log("  - Repositories: PizzaApi, FileStorage");
+  console.log("  - Services: Session, Menu, Order");
+  console.log("  - Handlers: OrderFlow, WhatsApp");
+}
 
-client.on("auth_failure", (msg) => {
-  console.error("Falha na autenticação:", msg);
-});
-
-console.log("Inicializando cliente...");
-client.initialize();
+// Inicia a aplicação
+bootstrap();
