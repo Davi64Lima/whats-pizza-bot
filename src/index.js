@@ -31,18 +31,15 @@ client.on("ready", () => {
 
 client.on("message", async (message) => {
   try {
-    // Ignora mensagens enviadas pelo próprio bot e grupos
     if (message._data.id.fromMe || !message.from.endsWith("@c.us")) {
       return;
     }
 
     if (message.type === "location") {
-      // Remove a primeira linha duplicada do endereço
       const fullDescription = message.location.description || "";
       const lines = fullDescription.split("\n");
       message.body =
         lines.length > 1 ? lines.slice(1).join("\n") : fullDescription;
-      console.log("Endereço processado:", message.body);
     }
 
     const from = message.from;
@@ -50,19 +47,13 @@ client.on("message", async (message) => {
     const text = (message.body || "").trim();
 
     if (from !== `557185350004@c.us`) {
-      console.log(`Ignorando mensagem de ${phone}`);
       return;
     }
-
-    console.log(`Mensagem recebida de ${phone}: ${text}`);
 
     const reply = await handleIncomingMessage({ phone, text });
 
     if (reply) {
-      console.log(`Tentando enviar resposta: ${reply.substring(0, 50)}...`);
-
       try {
-        // Envia mensagem sem marcar como lida
         await client.pupPage.evaluate(
           async ({ chatId, message }) => {
             const chat = window.Store.Chat.get(chatId);
@@ -74,7 +65,6 @@ client.on("message", async (message) => {
           },
           { chatId: from, message: reply },
         );
-        console.log(`✓ Mensagem enviada para ${phone}`);
       } catch (sendError) {
         console.error("✗ Erro ao enviar mensagem:", sendError.message);
         console.error("Stack trace:", sendError.stack);
