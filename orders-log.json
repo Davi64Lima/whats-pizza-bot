@@ -311,5 +311,91 @@
     "notes": "",
     "failedToSend": true,
     "createdAt": "2026-01-23T01:41:30.672Z"
+  },
+  {
+    "products": [
+      {
+        "flavors": [
+          "mussarela",
+          "portuguesa",
+          "bacon"
+        ],
+        "name": "Mussarela/Portuguesa/Bacon",
+        "size": "grande",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Davi Lima"
+    },
+    "address": {
+      "street": "Rua Carlos Marighella",
+      "number": "102",
+      "neighborhood": "Salvador",
+      "complement": "41250-570, BA, BR"
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T02:33:38.169Z"
+  },
+  {
+    "products": [
+      {
+        "flavors": [
+          "mussarela",
+          "portuguesa",
+          "bacon"
+        ],
+        "name": "Mussarela/Portuguesa/Bacon",
+        "size": "grande",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "Davi LIma"
+    },
+    "address": {
+      "street": "Rua Carlos Marighella",
+      "number": "102",
+      "neighborhood": "Salvador",
+      "complement": "41250-570, BA, BR"
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": true,
+    "createdAt": "2026-01-23T02:39:33.174Z"
+  },
+  {
+    "code": "D2XR1",
+    "products": [
+      {
+        "flavors": [
+          "mussarela",
+          "portuguesa",
+          "bacon"
+        ],
+        "name": "Mussarela/Portuguesa/Bacon",
+        "size": "grande",
+        "quantity": 1
+      }
+    ],
+    "customer": {
+      "name": "finalizar",
+      "phone": "557185350004"
+    },
+    "address": {
+      "street": "Rua Carlos Marighella",
+      "number": "102",
+      "neighborhood": "Salvador",
+      "complement": "41250-570, BA, BR"
+    },
+    "payment": "pix",
+    "hash": "",
+    "observation": "",
+    "failedToSend": false,
+    "createdAt": "2026-01-23T02:43:27.345Z"
   }
 ]

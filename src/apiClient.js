@@ -7,8 +7,6 @@ export async function enviarPedidoParaApi(order) {
   try {
     const url = `${API_BASE_URL}/orders`;
 
-    console.log(order);
-
     const response = await axios.post(url, order);
     console.log("Pedido enviado para API com sucesso:", response.data);
 

@@ -5,12 +5,13 @@ export function getSession(phone) {
     sessions.set(phone, {
       state: "IDLE",
       order: {
-        phone,
-        items: [],
-        address: "",
+        code: generateCode(),
+        products: [],
+        customer: { name: "", phone: phone },
+        address: {},
         payment: "",
-        name: "",
-        notes: "",
+        hash: "",
+        observation: "",
       },
     });
   }
@@ -20,3 +21,15 @@ export function getSession(phone) {
 export function resetSession(phone) {
   sessions.delete(phone);
 }
+
+const generateCode = () => {
+  const code = (Math.random() + 1)
+    .toString(36)
+    .replace("0", "")
+    .replace("o", "")
+    .replace("i", "")
+    .replace("j", "")
+    .substring(2, 7)
+    .toUpperCase();
+  return code;
+};

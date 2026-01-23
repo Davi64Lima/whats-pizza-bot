@@ -51,10 +51,10 @@ export async function handleIncomingMessage({ phone, text }) {
       return 'Se quiser fazer um pedido, responda com "2".';
 
     case "ASK_NAME":
-      order.name = text;
+      order.customer.name = text;
       session.state = "CHOOSING_ITEMS";
       return (
-        `Prazer, ${order.name}! Vamos ao seu pedido.\n\n` +
+        `Prazer, ${order.customer.name}! Vamos ao seu pedido.\n\n` +
         "Envie cada item no formato:\n" +
         "`sabor(es), tamanho, quantidade`\n\n" +
         "*Tamanhos:* pequena, média, grande\n" +
@@ -69,7 +69,7 @@ export async function handleIncomingMessage({ phone, text }) {
 
     case "CHOOSING_ITEMS":
       if (text.toLowerCase() === "finalizar") {
-        if (order.items.length === 0) {
+        if (order.products.length === 0) {
           return "Você ainda não adicionou nenhum item. Envie pelo menos um item antes de finalizar.";
         }
         session.state = "ASK_ADDRESS";
@@ -92,10 +92,9 @@ export async function handleIncomingMessage({ phone, text }) {
         return item.error;
       }
 
-      order.items.push(item);
-      const saboresTexto = item.sabores.map((s) => capitalize(s)).join("/");
+      order.products.push(item);
       return (
-        `Adicionei: ${item.quantidade}x ${saboresTexto} (${item.tamanho.toUpperCase()}).\n` +
+        `Adicionei: ${item.quantity}x ${item.flavors.map((s) => capitalize(s)).join("/")} (${item.size.toUpperCase()}).\n` +
         'Envie outro item ou digite "finalizar".'
       );
 
@@ -104,7 +103,11 @@ export async function handleIncomingMessage({ phone, text }) {
       if (!addressValidation.valid) {
         return addressValidation.message;
       }
-      order.address = text;
+      const address = text.split(",").map((part) => part.trim());
+      order.address.street = address[0] || "";
+      order.address.number = address[1] || "";
+      order.address.neighborhood = address[2] || "";
+      order.address.complement = address.slice(3).join(", ") || "";
       session.state = "ASK_PAYMENT";
       return "Qual a forma de pagamento? (pix, cartão, dinheiro)";
 
@@ -115,8 +118,18 @@ export async function handleIncomingMessage({ phone, text }) {
       }
       order.payment = normalizePayment(payment);
 
+      session.state = "ASK_OBSERVATION";
+      return "Tem alguma observação para o pedido? (Ex: sem cebola, bem passada, etc.)\n\nSe não tiver, digite: não";
+    }
+
+    case "ASK_OBSERVATION": {
+      const t = text.toLowerCase();
+      if (!["nao", "não", "n"].includes(t)) {
+        order.observation = text;
+      }
+
       session.state = "CONFIRMING";
-      return buildConfirmationMessage(order);
+      return buildConfirmationMessage(order, phone);
     }
 
     case "CONFIRMING": {
@@ -280,10 +293,10 @@ async function parseItem(text) {
   }
 
   return {
-    sabores: sabores,
-    sabor: sabores.join("/"), // mantém compatibilidade
-    tamanho: tamanhoNormalizado,
-    quantidade: quantidade,
+    flavors: sabores,
+    name: sabores.map((s) => capitalize(s)).join("/"),
+    size: tamanhoNormalizado,
+    quantity: quantidade,
   };
 }
 
@@ -299,21 +312,21 @@ function normalizePayment(p) {
 }
 
 function buildConfirmationMessage(order) {
-  const itensTexto = order.items
+  const itensTexto = order.products
     .map((i, idx) => {
-      const sabores = i.sabores
-        ? i.sabores.map((s) => capitalize(s)).join("/")
-        : capitalize(i.sabor);
-      return `${idx + 1}) ${i.quantidade}x ${sabores} (${i.tamanho.toUpperCase()})`;
+      const flavors = i.flavors
+        ? i.flavors.map((s) => capitalize(s)).join("/")
+        : capitalize(i.flavor);
+      return `${idx + 1}) ${i.quantity}x ${flavors} (${i.size.toUpperCase()})`;
     })
     .join("\n");
 
   return (
     "Confere seu pedido?\n\n" +
-    `Nome: ${order.name}\n` +
-    `Telefone: ${order.phone}\n` +
+    `Nome: ${order.customer.name}\n` +
+    `Telefone: ${order.customer.phone}\n` +
     `Itens:\n${itensTexto}\n\n` +
-    `Endereço: ${order.address}\n` +
+    `Endereço: ${order.address.street}, ${order.address.number}, ${order.address.neighborhood}, ${order.address.complement}\n` +
     `Pagamento: ${order.payment}\n\n` +
     "Responda *sim* para confirmar ou *nao* para recomeçar."
   );
